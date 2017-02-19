@@ -11,8 +11,8 @@ class MoviesController < ApplicationController
   end
 
   def index
-    # @sort_by=params[:sort_by]
     redirectFlag = false
+    
     if params[:sort_by]
       @sort_by = params[:sort_by]
       session[:sort_by] = @sort_by
@@ -33,22 +33,19 @@ class MoviesController < ApplicationController
       @ratings = nil
     end
 
-    if redirectFlag == 1
+    if redirectFlag
       flash.keep
       redirect_to movies_path :sort_by => @sort_by, :ratings => @ratings
     end
 
     @all_ratings = Movie.all_ratings
-    # @ratings = params[:ratings]
-    if !@ratings and params[:commit] != "Refresh"
+
+    if !@ratings
       @ratings = Hash.new
       @all_ratings.each do |rating|
         @ratings[rating] = 1
       end
-    elsif !@ratings
-      @ratings = Hash.new
     end
-
 
     if @sort_by and @ratings
       @movies = Movie.where(:rating => @ratings.keys).order(@sort_by)
@@ -58,9 +55,7 @@ class MoviesController < ApplicationController
       @movies = Movie.all.order(@sort_by)
     else
       @movies = Movie.all
-
-    end
-    
+    end   
   end
 
   def new
